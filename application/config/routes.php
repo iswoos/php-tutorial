@@ -49,8 +49,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | Examples:	my-controller/index	-> my_controller/index
 |		my-controller/my-method	-> my_controller/my_method
 */
+
+
 $route['default_controller'] = 'pages/view';
 $route['(:any)'] = 'pages/view/$1';
+// 중간에 view라는 경로를 안 쓰고 하면, 추후 news/(:any)로만 들어와도 news/view/$1으로 라우팅됨
 $route['news/view/(:any)'] = 'news/view/$1';
 $route['news'] = 'news';
 $route['news/create'] = 'news/create';
