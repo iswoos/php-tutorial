@@ -1,16 +1,38 @@
 version: "3.9"
 services:
-  mysql:
-    image: mysql:5.7
-    platform: linux/amd64
-    container_name: mysql_php_tutorial
+  nginx:
+    container_name: nginx_ecs
+    image: arm64v8/nginx:latest  # ARM64 아키텍처를 지원하는 Nginx 이미지
     ports:
-      - 3307:3306
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      TZ: Asia/Seoul
-    command:
-      - --character-set-server=utf8mb4
-      - --collation-server=utf8mb4_unicode_ci
+      - 80:80
     volumes:
-      - ./mysql_data:/var/lib/mysql
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - .:/var/www/html/webtoon
+    links:
+      - php_app
+    networks:
+      - mynetwork
+
+  php_app:
+    build:
+      context: .
+      dockerfile: Dockerfile  # Dockerfile의 이름을 명시
+    container_name: php_app_container2
+    volumes:
+      - .:/var/www/html/webtoon
+    ports:
+      - "9000:9000"
+    networks:
+      - mynetwork
+    image: webtoon-test
+    command:
+      - /bin/sh
+      - -c
+      - |
+        docker-php-ext-install mysqli 
+        echo "security.limit_extensions = .php .phtml .php3 .php4 .php5 .html .htm" >> /usr/local/etc/php-fpm.d/www.conf
+        php-fpm
+
+networks:
+  mynetwork:
+    driver: bridge
